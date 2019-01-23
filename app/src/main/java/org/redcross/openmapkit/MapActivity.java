@@ -121,7 +121,11 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         
         // Register the intent to the ODKCollect handler
         // This will determine if we are in ODK Collect Mode or not.
-        ODKCollectHandler.registerIntent(getIntent());
+//        ODKCollectHandler.registerIntent(getIntent());
+
+        //commented previous call and added below by asishaj
+        FakeDataMessenger fake_obj=new FakeDataMessenger();
+        ODKCollectHandler.registerIntent(fake_obj.launchOpenMapKit());
 
         // Initialize the constraints singleton.
         // Loads up all the constraints JSON configs.
