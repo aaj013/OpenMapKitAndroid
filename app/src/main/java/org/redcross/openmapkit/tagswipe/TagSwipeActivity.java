@@ -1,5 +1,6 @@
 package org.redcross.openmapkit.tagswipe;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -20,20 +21,40 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.spatialdev.osm.model.OSMElement;
+import com.spatialdev.osm.model.OSMXmlWriter;
+
+import org.json.JSONObject;
+import org.redcross.openmapkit.MapActivity;
 import org.redcross.openmapkit.R;
 import org.redcross.openmapkit.odkcollect.ODKCollectHandler;
+
+import static org.redcross.openmapkit.odkcollect.ODKCollectData.APP_NAME;
 
 public class TagSwipeActivity extends ActionBarActivity {
 
     private List<TagEdit> tagEdits;
     private SharedPreferences userNamePref;
-
+   //added by athii----start
+   private static final int ODK_COLLECT_TAG_ACTIVITY_CODE = 2015;
+    String editedXml;
+    private String appVersion =  MapActivity.getVersion();
+    String postUrl = "https://dronemeetup.icfoss.org/app_data";
+    //added by athii----end
     
     private void setupModel() {
         tagEdits = TagEdit.buildTagEdits();
@@ -109,6 +130,8 @@ public class TagSwipeActivity extends ActionBarActivity {
             if (TagEdit.saveToODKCollect(userName)) {
                 setResult(Activity.RESULT_OK);
                 finish();
+                //finishActivity(ODK_COLLECT_TAG_ACTIVITY_CODE);
+
             }
         }
     }
@@ -147,6 +170,49 @@ public class TagSwipeActivity extends ActionBarActivity {
         mViewPager.setCurrentItem(idx);
     }
 
+    //push xml data to server ----edited by athii--start
+    public void pushXmlToServer(OSMElement element , String OSMUsername){
+        try {
+            editedXml = OSMXmlWriter.elementToString(element,OSMUsername , APP_NAME + " " + appVersion);
+            Log.i("edited xml is: ",editedXml);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        JSONObject requestObj = new JSONObject();
+        try
+        {
+            requestObj.put("xmlfile", editedXml);
+
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, postUrl, requestObj,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        //Toast.makeText(TagSwipeActivity.this,"Response is :" + response.toString(),Toast.LENGTH_LONG).show();
+                        Log.d("Response", response.toString());
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Volley", error.toString());
+                    }
+                }
+
+        );
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(jsonRequest);
+    }
+//added by athii----end
     /**
      * Only call if you have more than one missing tag.
      *

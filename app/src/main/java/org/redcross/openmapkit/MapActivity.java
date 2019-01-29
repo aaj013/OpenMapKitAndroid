@@ -30,10 +30,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Marker;
+import com.mapbox.mapboxsdk.views.MapController;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.spatialdev.osm.OSMMap;
 import com.spatialdev.osm.events.OSMSelectionListener;
@@ -82,10 +85,12 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
     private boolean nodeMode = false;
     private boolean moveNodeMode = false;
 
+
     /**
      * intent request codes
      */
     private static final int ODK_COLLECT_TAG_ACTIVITY_CODE = 2015;
+    FakeDataMessenger fake_obj;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +129,7 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
 //        ODKCollectHandler.registerIntent(getIntent());
 
         //commented previous call and added below by asishaj
-        FakeDataMessenger fake_obj=new FakeDataMessenger();
+        fake_obj=new FakeDataMessenger();
         ODKCollectHandler.registerIntent(fake_obj.launchOpenMapKit());
 
         // Initialize the constraints singleton.
@@ -198,17 +203,26 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         double lat = (double) pref.getFloat(PREVIOUS_LAT, -999);
         double lng = (double) pref.getFloat(PREVIOUS_LNG, -999);
         float z = pref.getFloat(PREVIOUS_ZOOM, -999);
-        
+
         // no shared pref
         if (lat == -999 || lng == -999 || z == -999) {
+
             mapView.setUserLocationEnabled(true);
             mapView.goToUserLocation(true);
+            System.out.println("zoom level is :" + mapView.getZoomLevel());
+            //edited by athiii
+
+            Toast.makeText(MapActivity.this,"Click on + to add point" ,Toast.LENGTH_LONG).show();
+
         } 
         // there is a shared pref
         else {
             LatLng c = new LatLng(lat, lng);
             mapView.setCenter(c);
-            mapView.setZoom(z);
+            //edited by athii
+            //mapView.setZoom(z);
+            mapView.setZoom(18);
+            //Toast.makeText(MapActivity.this,"Click on + to add point" ,Toast.LENGTH_LONG).show();
         }
     }
     
@@ -732,7 +746,9 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ( requestCode == ODK_COLLECT_TAG_ACTIVITY_CODE ) {
             if(resultCode == RESULT_OK) {
-                saveToODKCollectAndExit();
+                //edited by athii
+                Toast.makeText(MapActivity.this ,"Added data successfully" , Toast.LENGTH_SHORT).show();
+                //saveToODKCollectAndExit();
             }
         }
     }
@@ -744,7 +760,9 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         resultIntent.putExtra("OSM_PATH", osmXmlFileFullPath);
         resultIntent.putExtra("OSM_FILE_NAME", osmXmlFileName);
         setResult(Activity.RESULT_OK, resultIntent);
-        finish();
+        //edited by athii
+        //finish();
+        finishActivity(ODK_COLLECT_TAG_ACTIVITY_CODE);
     }
     
     public MapView getMapView() {

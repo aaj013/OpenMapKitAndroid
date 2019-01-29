@@ -28,7 +28,9 @@ public class ODKCollectHandler {
         if(action != null && action.equals("android.intent.action.SEND")) {
             if (intent.getType().equals("text/plain")) {
                 Bundle extras = intent.getExtras();
-                if(extras != null) {
+                LinkedHashMap<String, ODKTag> requiredTags = generateRequiredOSMTagsFromBundle(extras);
+                odkCollectData = new ODKCollectData(requiredTags);
+             /*   if(extras != null) {
                     // extract data from intent extras
                     String formId = extras.getString("FORM_ID");
                     String formFileName = extras.getString("FORM_FILE_NAME");
@@ -42,7 +44,7 @@ public class ODKCollectHandler {
                                                         instanceDir,
                                                         previousOSMEditFileName,
                                                         requiredTags);
-                }
+                }*/
             }
         }
     }
@@ -85,31 +87,50 @@ public class ODKCollectHandler {
     
     private static LinkedHashMap<String, ODKTag> generateRequiredOSMTagsFromBundle(Bundle extras) {
         List<String> tagKeys = extras.getStringArrayList("TAG_KEYS");
+        for(int i=0;i<tagKeys.size();i++){
+            System.out.println("Tagkeys are: " + tagKeys.get(i));
+        }
         if (tagKeys == null || tagKeys.size() == 0) {
+            System.out.println("Tagkeys are null");
             return null;
         }
         LinkedHashMap<String, ODKTag> tags = new LinkedHashMap<>();
         for (String key : tagKeys) {
             ODKTag tag = new ODKTag();
             tags.put(key, tag);
+            System.out.println("Key added: " + tags.get(key).toString());
+            System.out.println("ODK TagKey is:" + tag.getKey());
+            System.out.println("ODK TagLabel is:" + tag.getLabel());
             tag.setKey(key);
+            System.out.println("key of tag: "+tag.getKey());
             String label = extras.getString("TAG_LABEL." + key);
+            System.out.println("Label is:" + label);
             if (label != null) {
                 tag.setLabel(label);
+                System.out.println("label of tag is: " + tag.getLabel());
             }
             List<String> values = extras.getStringArrayList("TAG_VALUES." + key);
             if (values != null && values.size() > 0) {
                 for (String value : values) {
                     ODKTagItem tagItem = new ODKTagItem();
                     tagItem.setValue(value);
+                    System.out.println("Tagitem label is :" +tagItem.getLabel());
+                    System.out.println("Tagitem value is :" +tagItem.getValue());
+                    System.out.println("values are: " +value);
                     String valueLabel = extras.getString("TAG_VALUE_LABEL." + key + "." + value);
                     if (valueLabel != null) {
                         tagItem.setLabel(valueLabel);
+                        System.out.println("value label is: " + valueLabel);
                     }
                     tag.addItem(tagItem);
+                    System.out.println("After adding tagitem, label is: " + tag.getLabel());
+                    System.out.println("After adding tagitem, key is: " + tag.getKey());
                 }
             }
         }
+      System.out.println("Size of tags is: " + tags.size());
         return tags;
     }
+
+
 }

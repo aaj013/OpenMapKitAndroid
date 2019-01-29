@@ -5,9 +5,11 @@ package org.redcross.openmapkit.odkcollect.tag;
  *  Created by Nicholas Hallahan nhallahan@spatialdev.com
  */
 public class ODKTagItem {
-    private String label;
-    private String value;
-
+    //edited by athii-start
+    //  changed access modifier of label and value from private to public
+    public String label;
+    public String value;
+    //edited by athii-end
     public String getValue() {
         return value;
     }

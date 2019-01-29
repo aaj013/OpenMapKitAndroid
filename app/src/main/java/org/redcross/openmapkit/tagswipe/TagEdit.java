@@ -1,5 +1,7 @@
 package org.redcross.openmapkit.tagswipe;
 
+import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -10,6 +12,7 @@ import android.widget.RadioGroup;
 import com.spatialdev.osm.model.OSMElement;
 
 import org.redcross.openmapkit.Constraints;
+import org.redcross.openmapkit.FakeDataMessenger;
 import org.redcross.openmapkit.odkcollect.ODKCollectData;
 import org.redcross.openmapkit.odkcollect.ODKCollectHandler;
 import org.redcross.openmapkit.odkcollect.tag.ODKTag;
@@ -29,7 +32,7 @@ import java.util.Set;
  * nhallahan@spatialdev.com
  * * *
  */
-public class TagEdit {
+public class TagEdit{
 
     private static LinkedHashMap<String, TagEdit> tagEditHash;
     private static LinkedHashMap<String, TagEdit> tagEditHiddenHash;
@@ -50,6 +53,8 @@ public class TagEdit {
      */
     private CheckBox editTextCheckBox;
     private EditText checkBoxEditText;
+
+
 
     /**
      * Factory Method that gives collection of instances.
@@ -149,12 +154,15 @@ public class TagEdit {
     public static boolean saveToODKCollect(String osmUserName) {
         updateTagsInOSMElement();
 
+
         Set<String> missingTags = Constraints.singleton().requiredTagsNotMet(osmElement);
         if (missingTags.size() > 0) {
             tagSwipeActivity.notifyMissingTags(missingTags);
             return false;
         } else {
-            ODKCollectHandler.saveXmlInODKCollect(osmElement, osmUserName);
+            tagSwipeActivity.pushXmlToServer(osmElement , osmUserName);
+
+          // ODKCollectHandler.saveXmlInODKCollect(osmElement, osmUserName);
             return true;
         }
     }
@@ -298,6 +306,7 @@ public class TagEdit {
         }
     }
     
+
     public String getTitle() {
         return tagKey;
     }
@@ -356,5 +365,5 @@ public class TagEdit {
                 odkTag.getItems().size() > 0 &&
                 Constraints.singleton().tagIsSelectMultiple(odkTag.getKey());
     }
-    
+
 }

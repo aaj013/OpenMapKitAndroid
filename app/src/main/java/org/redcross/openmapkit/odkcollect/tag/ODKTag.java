@@ -21,11 +21,14 @@ import java.util.Set;
  *  Created by Nicholas Hallahan nhallahan@spatialdev.com
  */
 public class ODKTag {
-    private String key;
-    private String label;
-    private LinkedHashMap<String, ODKTagItem> items = new LinkedHashMap<>();
-    private Map<Integer, ODKTagItem> buttonIdToODKTagItemHash = new HashMap<>();
-    private List<CheckBox> checkBoxes = new ArrayList<>();
+    //edited by athii-start
+    //  changed access modifier from private to public
+    public String key;
+    public String label;
+    public LinkedHashMap<String, ODKTagItem> items = new LinkedHashMap<>();
+    public Map<Integer, ODKTagItem> buttonIdToODKTagItemHash = new HashMap<>();
+    public List<CheckBox> checkBoxes = new ArrayList<>();
+    //edited by athii-end
 
     public String getKey() {
         return key;

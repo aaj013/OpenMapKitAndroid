@@ -41,6 +41,10 @@ public class ODKCollectData {
     private String checksum;
     private String appVersion;
 
+    public ODKCollectData(LinkedHashMap<String, ODKTag> requiredTags){
+        this.requiredTags = requiredTags;
+    }
+/*
     public ODKCollectData ( String formId, 
                             String formFileName,
                             String instanceId, 
@@ -55,7 +59,7 @@ public class ODKCollectData {
         this.requiredTags = requiredTags;
         this.appVersion = MapActivity.getVersion();
         findEditedOSMForForm(formFileName);
-    }
+    }*/
 
     private void findEditedOSMForForm(String formFileName) {
         if (formFileName == null) {
