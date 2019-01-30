@@ -1,5 +1,6 @@
 package org.redcross.openmapkit;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
@@ -92,6 +94,8 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
     private static final int ODK_COLLECT_TAG_ACTIVITY_CODE = 2015;
     FakeDataMessenger fake_obj;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,14 +120,16 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setIcon(R.mipmap.ic_omk_nobg);
         }
+        //added by athii--start
+     //   verifyStoragePermissions(this);
+      //  if((permission == PackageManager.PERMISSION_GRANTED)&&(permission1==PackageManager.PERMISSION_GRANTED)) {
+            //added by athii--end
+            // create directory structure for app if needed
+            ExternalStorage.checkOrCreateAppDirs();
 
-
-        // create directory structure for app if needed
-        ExternalStorage.checkOrCreateAppDirs();
-
-        // Move constraints assets to ExternalStorage if necessary
-        ExternalStorage.copyConstraintsToExternalStorageIfNeeded(this);
-        
+            // Move constraints assets to ExternalStorage if necessary
+            ExternalStorage.copyConstraintsToExternalStorageIfNeeded(this);
+       // }
         // Register the intent to the ODKCollect handler
         // This will determine if we are in ODK Collect Mode or not.
 //        ODKCollectHandler.registerIntent(getIntent());
