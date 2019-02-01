@@ -1,6 +1,8 @@
 package org.redcross.openmapkit.tagswipe;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.Set;
 
@@ -182,8 +184,13 @@ public class TagSwipeActivity extends ActionBarActivity {
         JSONObject requestObj = new JSONObject();
         try
         {
-            requestObj.put("xmlfile", editedXml);
+            String key="jasnaaslam222";
+            MessageDigest m=MessageDigest.getInstance("MD5");
+            m.update(key.getBytes(),0,key.length());
+            String auth_hash = new BigInteger(1,m.digest()).toString(16);
 
+            requestObj.put("xmlfile", editedXml);
+            requestObj.put("auth_hash", auth_hash);
         }
         catch(Exception e)
         {
@@ -195,7 +202,7 @@ public class TagSwipeActivity extends ActionBarActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         // display response
-                        //Toast.makeText(TagSwipeActivity.this,"Response is :" + response.toString(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(TagSwipeActivity.this, response.toString(), Toast.LENGTH_LONG).show();
                         Log.d("Response", response.toString());
                     }
                 },

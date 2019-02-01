@@ -84,6 +84,8 @@ public class Basemap {
                 String filePath = file.getAbsolutePath();
                 basemaps.add(filePath);
             }
+        }else{
+            System.out.println("no mbtiles");
         }
 
         if (basemaps.size() == 0) {

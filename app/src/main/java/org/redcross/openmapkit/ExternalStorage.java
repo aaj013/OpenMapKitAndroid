@@ -81,9 +81,13 @@ public class ExternalStorage {
     }
 
     public static String getMBTilesDir() {
-        return Environment.getExternalStorageDirectory() + "/"
+
+       return  Environment.getExternalStorageDirectory() + "/"
                 + APP_DIR + "/"
                 + MBTILES_DIR + "/";
+
+
+
     }
 
     public static String getMBTilesDirRelativeToExternalDir() {
@@ -120,12 +124,13 @@ public class ExternalStorage {
     }
     
     public static File[] fetchMBTilesFiles() {
-        List<File> mbtiles = allDeploymentMBTilesFiles();
+       List<File> mbtiles = allDeploymentMBTilesFiles();
         String dirPath = getMBTilesDir();
         File dir = new File(dirPath);
         File[] otherMBTiles =  dir.listFiles();
         Collections.addAll(mbtiles, otherMBTiles);
         return mbtiles.toArray(new File[mbtiles.size()]);
+
     }
     
     /**
@@ -212,7 +217,9 @@ public class ExternalStorage {
         File[] deployments = deploymentsDir.listFiles();
         for (File deploymentDir : deployments) {
             File[] files = deploymentDir.listFiles();
+
             for (File f : files) {
+
                 String ext = FilenameUtils.getExtension(f.getPath());
                 if (ext.equals("mbtiles")) {
                     deploymentMBTilesFiles.add(f);
@@ -317,6 +324,9 @@ public class ExternalStorage {
         // In production, we only want to copy over once.
         if (!defaultConstraint.exists() || BuildConfig.DEBUG) {
             copyAssetsFileOrDirToExternalStorage(context, CONSTRAINTS_DIR);
+            //added by athii
+            //copyAssetsFileOrDirToExternalStorage(context ,MBTILES_DIR );
+
         }
     }
 
@@ -333,6 +343,7 @@ public class ExternalStorage {
                 if (!dir.exists())
                     dir.mkdir();
                 for (int i = 0; i < assets.length; ++i) {
+                    System.out.println("Assets are: " + assets[i]);
                     copyAssetsFileOrDirToExternalStorage(context, path + "/" + assets[i]);
                 }
             }
