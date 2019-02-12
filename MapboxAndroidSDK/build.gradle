@@ -32,8 +32,8 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '25.0.0'
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion Integer.parseInt(project.ANDROID_MIN_SDK)
@@ -85,7 +85,8 @@ android.libraryVariants.all { variant ->
         destinationDir = new File(destinationDir, variant.baseName)
         source = files(variant.javaCompile.source)
         ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        //classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        doFirst { classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar) }
         options.links("http://docs.oracle.com/javase/7/docs/api/")
         options.links("http://d.android.com/reference/")
         exclude '**/R.html', '**/R.*.html'

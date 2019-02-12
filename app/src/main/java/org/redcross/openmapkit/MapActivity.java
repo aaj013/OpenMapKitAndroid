@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
@@ -61,6 +62,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+
 public class MapActivity extends AppCompatActivity implements OSMSelectionListener, FPListener {
 
     protected static final String PREVIOUS_LAT = "org.redcross.openmapkit.PREVIOUS_LAT";
@@ -93,7 +95,50 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
      */
     private static final int ODK_COLLECT_TAG_ACTIVITY_CODE = 2015;
     FakeDataMessenger fake_obj;
+   private static int permission,permission1, permission2 , permission3 ,permission4;
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static final int REQUEST_LOCATION = 2;
+    private static final int REQUEST_NETWORK_ACCESS =3;
 
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+    private static String[] PERMISSIONS_STORAGE_LOCATION ={
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+    private static String[] PERMISSIONS_NETWORK_ACCESS = {
+            Manifest.permission.ACCESS_NETWORK_STATE
+    };
+
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        permission1 = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+
+    }
+    public static void verifyLocationPermissions(Activity activity){
+        permission2= ActivityCompat.checkSelfPermission(activity , Manifest.permission.ACCESS_COARSE_LOCATION);
+        permission3 =ActivityCompat.checkSelfPermission(activity , Manifest.permission.ACCESS_FINE_LOCATION);
+        if(permission2 != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE_LOCATION,
+                    REQUEST_LOCATION
+            );
+        }
+
+    }
 
 
     @Override
@@ -109,6 +154,11 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         determineVersion();
         
         if(android.os.Build.VERSION.SDK_INT >= 21) {
+
+           verifyStoragePermissions(this);
+           verifyLocationPermissions(this);
+
+
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -120,16 +170,23 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setIcon(R.mipmap.ic_omk_nobg);
         }
-        //added by athii--start
-     //   verifyStoragePermissions(this);
-      //  if((permission == PackageManager.PERMISSION_GRANTED)&&(permission1==PackageManager.PERMISSION_GRANTED)) {
-            //added by athii--end
+
+        if((permission == PackageManager.PERMISSION_GRANTED)&&(permission1==PackageManager.PERMISSION_GRANTED)) {
+            System.out.println("inside permission check1");
+        }
+        if((permission2 == PackageManager.PERMISSION_GRANTED)&&(permission3==PackageManager.PERMISSION_GRANTED)) {
+            System.out.println("inside permission check2");
+        }
+
+
             // create directory structure for app if needed
             ExternalStorage.checkOrCreateAppDirs();
 
             // Move constraints assets to ExternalStorage if necessary
             ExternalStorage.copyConstraintsToExternalStorageIfNeeded(this);
-       // }
+
+
+        
         // Register the intent to the ODKCollect handler
         // This will determine if we are in ODK Collect Mode or not.
 //        ODKCollectHandler.registerIntent(getIntent());
@@ -166,6 +223,7 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         // initialize basemap object
         basemap = new Basemap(this);
 
+
         initializeFP();
 
         initializeOsmXml();
@@ -190,7 +248,18 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         super.onPause();
         saveMapPosition();        
     }
-
+    //added by athii--start
+    @Override
+    @NonNull
+    public void onStart()
+    {
+        super.onStart();
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
+    //added by athii--end
     protected void saveMapPosition() {
         LatLng c = mapView.getCenter();
         float lat = (float) c.getLatitude();
@@ -212,14 +281,12 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
 
         // no shared pref
         if (lat == -999 || lng == -999 || z == -999) {
-
+            mapView.setZoom(16);
             mapView.setUserLocationEnabled(true);
             mapView.goToUserLocation(true);
             System.out.println("zoom level is :" + mapView.getZoomLevel());
             //edited by athiii
-
-            Toast.makeText(MapActivity.this,"Click on + to add point" ,Toast.LENGTH_LONG).show();
-
+            //Toast.makeText(MapActivity.this,"Click on + to add point" ,Toast.LENGTH_LONG).show();
         } 
         // there is a shared pref
         else {
@@ -753,8 +820,8 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         if ( requestCode == ODK_COLLECT_TAG_ACTIVITY_CODE ) {
             if(resultCode == RESULT_OK) {
                 //edited by athii
-                Toast.makeText(MapActivity.this ,"Added data successfully" , Toast.LENGTH_SHORT).show();
-                //saveToODKCollectAndExit();
+                //Toast.makeText(MapActivity.this ,"Added data successfully" , Toast.LENGTH_SHORT).show();
+                saveToODKCollectAndExit();
             }
         }
     }

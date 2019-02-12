@@ -100,88 +100,110 @@ public class FakeDataMessenger {
     }
 
 
-   //  * See: https://github.com/AmericanRedCross/openmapkit/wiki/ODK-Collect-Tag-Intent-Extras
-
+        //* See: https://github.com/AmericanRedCross/openmapkit/wiki/ODK-Collect-Tag-Intent-Extras
 
         private void writeOsmRequiredTagsToExtras(Intent intent) {
-        ArrayList<ODKTag> osmRequiredTags = new ArrayList<>();
+            //ArrayList<ODKTag> osmRequiredTags = new ArrayList<>();
             //ArrayList<String> tagKeys = new ArrayList<>();
 
-        ArrayList<String> tagKeys = new ArrayList<>();
-        tagKeys.add("building");
-       tagKeys.add("building:material");
-       /* tagKeys.add("building:condition");
-        tagKeys.add("building:levels");
-        tagKeys.add("addr:housenumber");
-        tagKeys.add("addr:street");
-        tagKeys.add("addr:city");
-        tagKeys.add("addr:state");
-        tagKeys.add("addr:postcode");
-        tagKeys.add("name");*/
-        //Map for adding tag "Building"
-            Map<String , String > building =new HashMap<String, String>();
-            building.put("yes" , "Yes");
-            building.put("residential" , "Residential");
-            building.put("mixed" , "Other/Multiple (Mixed)");
-            building.put("commercial" , "Commercial");
-            building.put("industrial" , "Industrial");
+            ArrayList<String> tagKeys = new ArrayList<>();
+//            tagKeys.add("building");
+//            tagKeys.add("building:material");
+            tagKeys.add("name"); // Office Name
+            tagKeys.add("addr:housenumber"); // Building Number
+            tagKeys.add("addr:street"); // Street Name
+            tagKeys.add("addr:place"); // Place
+            tagKeys.add("addr:postcode"); // Post Code
+            tagKeys.add("addr:city"); // City
+            tagKeys.add("addr:district"); // District
+            tagKeys.add("local_body_type"); // Local Body Type
+            tagKeys.add("opening_hours"); // Working Hours
+            tagKeys.add("contact"); // Phone Number
+            tagKeys.add("email"); // OFFICE Email
+            tagKeys.add("website"); // OFFICE Website Link
 
-            Iterator it = building.keySet().iterator();
-            while (it.hasNext()){
-                Object key = it.next();
-                Object value = building.get(key);
-                String keyStr = key.toString();
-                String valueStr = value.toString();
-                intent.putExtra("TAG_LABEL." + tagKeys.get(0),"Building");
-                intent.putExtra("TAG_VALUE_LABEL." + tagKeys.get(0) + "." + keyStr,
-                        valueStr);
-            }
-            //Map for adding tag "Building material"
-            Map<String , String > material =new HashMap<String, String>();
-            material.put("concrete" ,"Concrete");
-            material.put("stone" ,"Stone");
-            material.put("tin" ,"Tin");
-            material.put("wood" ,"Wood");
-            material.put("bamboo" ,"Bamboo");
-            Iterator iterator = material.keySet().iterator();
-            while (iterator.hasNext()){
-                Object key = iterator.next();
-                Object value = material.get(key);
-                String keyStr = key.toString();
-                String valueStr = value.toString();
-                intent.putExtra("TAG_LABEL." + tagKeys.get(1),"Building Material");
-                intent.putExtra("TAG_VALUE_LABEL." + tagKeys.get(1) + "." + keyStr,
-                       valueStr);
-                }
-
-            ArrayList<String> buildingValues = new ArrayList<>(building.values());
-            ArrayList<String> materialValues = new ArrayList<>(material.values());
-
-            intent.putStringArrayListExtra("TAG_VALUES." + "building", buildingValues);
-            intent.putStringArrayListExtra("TAG_VALUES." + "building:material", materialValues);
             intent.putStringArrayListExtra("TAG_KEYS", tagKeys);
 
-      //  intent.putExtra("TAG_LABEL." + tagKeys.get(0),"Building");
-            //intent.putExtra("TAG_LABEL." + "building", "Building");
-            /*intent.putExtra("TAG_VALUE_LABEL." + "building" + "." + "yes",
-                    "Yes");
-            intent.putExtra("TAG_VALUE_LABEL." + "building" + "." + "residential",
-                    "residential");
-            intent.putExtra("TAG_LABEL." + "building:material", "Building Material");
-            intent.putExtra("TAG_VALUE_LABEL." + "building:material" + "." + "concrete",
-                    "Concrete");
-            intent.putExtra("TAG_VALUE_LABEL." + "building:material" + "." + "brick",
-                    "Brick");
-            ArrayList<String> tagValues = new ArrayList<>();
-            tagValues.add("yes");
-            tagValues.add("residential");
-            ArrayList<String> tagValues1 = new ArrayList<>();
-            tagValues1.add("brick");
-            tagValues1.add("concrete");*/
+            ArrayList<String> tagLabels = new ArrayList<>();
+//            tagLabels.add("Building");
+//            tagLabels.add("Building Material");
+            tagLabels.add("Office Name"); // Office Name
+            tagLabels.add("Building Number"); // Building Number
+            tagLabels.add("Street Name"); // Street Name
+            tagLabels.add("Place"); // Place
+            tagLabels.add("Post Code"); // Post Code
+            tagLabels.add("City"); // City
+            tagLabels.add("District"); // District
+            tagLabels.add("Local Body Type"); // Local Body Type
+            tagLabels.add("Working Hours"); // Working Hours
+            tagLabels.add("Phone Number"); // Phone Number
+            tagLabels.add("OFFICE Email"); // OFFICE Email
+            tagLabels.add("OFFICE Website Link"); // OFFICE Website Link
 
+            for(int counter = 0; counter < tagKeys.size(); counter++){
+                intent.putExtra("TAG_LABEL." + tagKeys.get(counter),tagLabels.get(counter));
+            }
 
-/*
-    for (ODKTag tag : osmRequiredTags) {
+            /* tagKeys.add("building:condition");
+            tagKeys.add("building:levels");
+            tagKeys.add("addr:housenumber");
+            tagKeys.add("addr:street");
+            tagKeys.add("addr:city");
+            tagKeys.add("addr:state");
+            tagKeys.add("addr:postcode");
+            tagKeys.add("name");*/
+
+            //Map for adding tag "District"
+            Map<String, String > district = new HashMap<String, String>();
+            district.put("thiruvananthapuram" , "Thiruvananthapuram");
+            district.put("kollam" , "Kollam");
+            district.put("pathanamthitta" , "Pathanamthitta");
+            district.put("alappuzha" , "Alappuzha");
+            district.put("kottayam" , "Kottayam");
+            district.put("idukki" , "Idukki");
+            district.put("ernakulam" , "Ernakulam");
+            district.put("thrissur" , "Thrissur");
+            district.put("palakkad" , "Palakkad");
+            district.put("malappuram" , "Malappuram");
+            district.put("kozhikode" , "Kozhikode");
+            district.put("wayanad" , "Wayanad");
+            district.put("kannur" , "Kannur");
+            district.put("kasaragod" , "Kasaragod");
+
+            Iterator it;
+
+            it = district.keySet().iterator();
+            while (it.hasNext()){
+                Object key = it.next();
+                Object value = district.get(key);
+                String keyStr = key.toString();
+                String valueStr = value.toString();
+                intent.putExtra("TAG_VALUE_LABEL.addr:district." + keyStr, valueStr);
+            }
+
+            ArrayList<String> districtValues = new ArrayList<>(district.values());
+            intent.putStringArrayListExtra("TAG_VALUES.addr:district", districtValues);
+
+            //Map for adding tag "Local Body Type"
+            Map<String, String > local_body_type = new HashMap<String, String>();
+            local_body_type.put("corporation" , "Corporation");
+            local_body_type.put("municipality" , "Municipality");
+            local_body_type.put("panchayat" , "Panchayat");
+
+            it = local_body_type.keySet().iterator();
+            while (it.hasNext()){
+                Object key = it.next();
+                Object value = local_body_type.get(key);
+                String keyStr = key.toString();
+                String valueStr = value.toString();
+                intent.putExtra("TAG_VALUE_LABEL.local_body_type." + keyStr, valueStr);
+            }
+
+            ArrayList<String> local_body_typeValues = new ArrayList<>(local_body_type.values());
+            intent.putStringArrayListExtra("TAG_VALUES.local_body_type", local_body_typeValues);
+
+            /*
+            for (ODKTag tag : osmRequiredTags) {
             tagKeys.add(tag.key);
             if (tag.label != null) {
                 intent.putExtra("TAG_LABEL." + tag.key, tag.label);
@@ -191,19 +213,14 @@ public class FakeDataMessenger {
                 for (ODKTagItem item : tag.items) {
                     tagValues.add(item.value);
                     if (item.label != null) {
-                        intent.putExtra("TAG_VALUE_LABEL." + tag.key + "." + item.value,
-                                item.label);
+                        intent.putExtra("TAG_VALUE_LABEL." + tag.key + "." + item.value, item.label);
                     }
                 }
             }
             intent.putStringArrayListExtra("TAG_VALUES." + tag.key, tagValues);
-        }
-*/
-
+            }
+            */
 
     }
-
-
-
 
 }
