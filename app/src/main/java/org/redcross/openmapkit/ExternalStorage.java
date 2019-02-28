@@ -8,7 +8,9 @@ import android.util.Log;
 import com.google.common.io.Files;
 
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.redcross.openmapkit.odkcollect.ODKCollectData;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,6 +45,8 @@ public class ExternalStorage {
     public static final String DEPLOYMENTS_DIR = "deployments";
     public static final String CONSTRAINTS_DIR = "constraints";
     public static final String DEFAULT_CONSTRAINT = "default.json";
+    //added by athii
+    public static final String OSM_DATA_DIR = "osmdata";
 
     /**
      * The name of the form specific constraints file if it were to be delivered as an ODK media file
@@ -59,9 +63,12 @@ public class ExternalStorage {
 
         File storageDir = Environment.getExternalStorageDirectory();
         File appDir = new File(storageDir, APP_DIR);
-        if(!appDir.exists()) {
-            appDir.mkdirs(); // mkdirs is mkdir -p
-        }
+
+
+         if (!appDir.exists()) {
+             appDir.mkdirs();      // mkdirs is mkdir -p
+         }
+
         File mbtilesDir = new File(appDir, MBTILES_DIR);
         if(!mbtilesDir.exists()) {
             mbtilesDir.mkdirs();
@@ -77,6 +84,10 @@ public class ExternalStorage {
         File constraintsDir = new File(appDir, CONSTRAINTS_DIR);
         if (!constraintsDir.exists()) {
             constraintsDir.mkdirs();
+        }
+        File osmDataDir = new File(appDir , OSM_DATA_DIR);
+        if(!osmDataDir.exists()){
+            osmDataDir.mkdirs();
         }
     }
 
@@ -103,13 +114,25 @@ public class ExternalStorage {
     public static String getOSMDirRelativeToExternalDir() {
         return "/" + APP_DIR + "/" + OSM_DIR + "/";
     }
+
+    //added by athii
+    public static String getOsmDataDir(){
+        return Environment.getExternalStorageDirectory() + "/" +
+                APP_DIR + "/" + OSM_DATA_DIR + "/";
+    }
+    public static  String getOsmDataDirRelativeToExternalDir(){
+        return "/" + APP_DIR + "/" + OSM_DATA_DIR + "/";
+    }
     
     public static File[] fetchOSMXmlFiles() {
         List<File> osms = allDeploymentOSMXmlFiles();
         String dirPath = getOSMDir();
         File dir = new File(dirPath);
         File[] otherOsms = dir.listFiles();
-        Collections.addAll(osms, otherOsms);
+        //edited by athii
+        if(otherOsms != null) {
+            Collections.addAll(osms, otherOsms);
+        }
         return osms.toArray(new File[osms.size()]);
     }
     
@@ -128,7 +151,9 @@ public class ExternalStorage {
         String dirPath = getMBTilesDir();
         File dir = new File(dirPath);
         File[] otherMBTiles =  dir.listFiles();
-        Collections.addAll(mbtiles, otherMBTiles);
+        if(otherMBTiles != null) {
+            Collections.addAll(mbtiles, otherMBTiles);
+        }
         return mbtiles.toArray(new File[mbtiles.size()]);
 
     }
@@ -193,17 +218,26 @@ public class ExternalStorage {
         return jsonFiles;
     }
 
+
+
     public static List<File> allDeploymentOSMXmlFiles() {
         List<File> deploymentOSMFiles = new ArrayList<>();
         File storageDir = Environment.getExternalStorageDirectory();
         File deploymentsDir = new File(storageDir, APP_DIR + "/" + DEPLOYMENTS_DIR);
         File[] deployments = deploymentsDir.listFiles();
-        for (File deploymentDir : deployments) {
-            File[] files = deploymentDir.listFiles();
-            for (File f : files) {
-                String ext = FilenameUtils.getExtension(f.getPath());
-                if (ext.equals("osm")) {
-                    deploymentOSMFiles.add(f);
+        //added by athii --> null check for deployments and files
+        if (deployments != null) {
+            System.out.println("inside deployments check");
+            for (File deploymentDir : deployments) {
+                File[] files = deploymentDir.listFiles();
+                if(files != null) {
+                    System.out.println("inside files check");
+                    for (File f : files) {
+                        String ext = FilenameUtils.getExtension(f.getPath());
+                        if (ext.equals("osm")) {
+                            deploymentOSMFiles.add(f);
+                        }
+                    }
                 }
             }
         }
@@ -215,29 +249,100 @@ public class ExternalStorage {
         File storageDir = Environment.getExternalStorageDirectory();
         File deploymentsDir = new File(storageDir, APP_DIR + "/" + DEPLOYMENTS_DIR);
         File[] deployments = deploymentsDir.listFiles();
-        for (File deploymentDir : deployments) {
-            File[] files = deploymentDir.listFiles();
+        //added by athii
+        if(deployments != null) {
+            for (File deploymentDir : deployments) {
+                File[] files = deploymentDir.listFiles();
+                if(files != null) {
+                    for (File f : files) {
 
-            for (File f : files) {
-
-                String ext = FilenameUtils.getExtension(f.getPath());
-                if (ext.equals("mbtiles")) {
-                    deploymentMBTilesFiles.add(f);
+                        String ext = FilenameUtils.getExtension(f.getPath());
+                        if (ext.equals("mbtiles")) {
+                            deploymentMBTilesFiles.add(f);
+                        }
+                    }
                 }
             }
         }
         return deploymentMBTilesFiles;
     }
 
+    //added by athi--start
+    public static JSONArray allOsmDataFiles() {
+
+        List<File> osmDataFiles = new ArrayList<>();
+        File storageDir = Environment.getExternalStorageDirectory();
+        File osmDataDir = new File(storageDir, APP_DIR + "/" + OSM_DATA_DIR);
+        File[] osmFiles = osmDataDir.listFiles();
+        int countOfFiles = osmFiles.length;
+        JSONArray osmfileContent = new JSONArray();
+
+
+        //added by athii
+        if(osmFiles != null) {
+            System.out.println("osmfiles");
+            for (File osmDir : osmFiles) {
+
+                        System.out.println("files are:" + osmDir.getName());
+
+                        String ext = FilenameUtils.getExtension(osmDir.getPath());
+                        if (ext.equals("osm")) {
+                            osmDataFiles.add(osmDir);
+                        }
+
+
+            }
+            for(File file: osmDataFiles){
+                StringBuilder stringBuilder = new StringBuilder();
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    String line;
+
+                    while ((line = br.readLine()) != null) {
+                        stringBuilder.append(line);
+                        stringBuilder.append('\n');
+                    }
+                    br.close();
+                    System.out.println("osm data is:" + stringBuilder.toString());
+                    //osmfileContent.add(stringBuilder.toString());
+                    osmfileContent.put(stringBuilder.toString());
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                    //You'll need to add proper error handling here
+                }
+
+            }
+
+        }
+        return osmfileContent;
+    }
+
+    public static boolean deleteOsmDir(){
+
+        List<File> osmDataFiles = new ArrayList<>();
+        boolean deleted = false;
+        File storageDir = Environment.getExternalStorageDirectory();
+        File osmDataDir = new File(storageDir, APP_DIR + "/" + OSM_DATA_DIR);
+        File[] osmFiles = osmDataDir.listFiles();
+        for(File f : osmFiles){
+            deleted = f.delete();
+        }
+        return deleted;
+    }
+    //added by athi--end
+
     public static Set<File> deploymentOSMXmlFiles(String deploymentName) {
         Set<File> osmXmlFiles = new HashSet<>();
         File storageDir = Environment.getExternalStorageDirectory();
         File deploymentDir = new File(storageDir, APP_DIR + "/" + DEPLOYMENTS_DIR + "/" + deploymentName);
         File[] files = deploymentDir.listFiles();
-        for (File f : files) {
-            String ext = FilenameUtils.getExtension(f.getPath());
-            if (ext.equals("osm")) {
-                osmXmlFiles.add(f);
+        if(files != null) {
+            for (File f : files) {
+                String ext = FilenameUtils.getExtension(f.getPath());
+                if (ext.equals("osm")) {
+                    osmXmlFiles.add(f);
+                }
             }
         }
         return osmXmlFiles;
@@ -248,9 +353,11 @@ public class ExternalStorage {
         File storageDir = Environment.getExternalStorageDirectory();
         File deploymentDir = new File(storageDir, APP_DIR + "/" + DEPLOYMENTS_DIR + "/" + deploymentName);
         File[] files = deploymentDir.listFiles();
-        for (File f : files) {
-            if (f.getName().equals("fp.geojson")) {
-                return f;
+        if(files != null) {
+            for (File f : files) {
+                if (f.getName().equals("fp.geojson")) {
+                    return f;
+                }
             }
         }
         return null;
@@ -261,12 +368,14 @@ public class ExternalStorage {
         File storageDir = Environment.getExternalStorageDirectory();
         File deploymentDir = new File(storageDir, APP_DIR + "/" + DEPLOYMENTS_DIR + "/" + deploymentName);
         File[] files = deploymentDir.listFiles();
-        for (File f : files) {
-            String ext = FilenameUtils.getExtension(f.getPath());
-            if (ext.equals("mbtiles")) {
-                mbtilesFiles.add(f);
+        if(files != null) {
+            for (File f : files) {
+                String ext = FilenameUtils.getExtension(f.getPath());
+                if (ext.equals("mbtiles")) {
+                    mbtilesFiles.add(f);
+                }
             }
-        }
+    }
         return mbtilesFiles;
     }
 
@@ -290,10 +399,12 @@ public class ExternalStorage {
         File storageDir = Environment.getExternalStorageDirectory();
         File deploymentDir = new File(storageDir, APP_DIR + "/" + DEPLOYMENTS_DIR + "/" + deploymentName);
         File[] files = deploymentDir.listFiles();
-        for (File f : files) {
-            String ext = FilenameUtils.getExtension(f.getPath());
-            if (ext.equals("mbtiles")) {
-                mbtilesFiles.add(f.getAbsolutePath());
+        if(files != null) {
+            for (File f : files) {
+                String ext = FilenameUtils.getExtension(f.getPath());
+                if (ext.equals("mbtiles")) {
+                    mbtilesFiles.add(f.getAbsolutePath());
+                }
             }
         }
         return mbtilesFiles;

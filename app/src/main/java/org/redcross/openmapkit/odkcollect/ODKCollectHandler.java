@@ -75,6 +75,7 @@ public class ODKCollectHandler {
      */
     public static String saveXmlInODKCollect(OSMElement el, String osmUserName) {
         try {
+            System.out.println("inside saveXmlInODKCollect");
             odkCollectData.consumeOSMElement(el, osmUserName);
             odkCollectData.deleteOldOSMEdit();
             odkCollectData.writeXmlToOdkCollectInstanceDir();

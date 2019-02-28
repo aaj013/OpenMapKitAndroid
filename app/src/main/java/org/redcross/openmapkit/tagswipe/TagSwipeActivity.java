@@ -16,12 +16,12 @@ import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -47,16 +47,10 @@ import org.redcross.openmapkit.odkcollect.ODKCollectHandler;
 
 import static org.redcross.openmapkit.odkcollect.ODKCollectData.APP_NAME;
 
-public class TagSwipeActivity extends ActionBarActivity {
+public class TagSwipeActivity extends AppCompatActivity {
 
     private List<TagEdit> tagEdits;
     private SharedPreferences userNamePref;
-   //added by athii----start
-   private static final int ODK_COLLECT_TAG_ACTIVITY_CODE = 2015;
-    String editedXml;
-    private String appVersion =  MapActivity.getVersion();
-    String postUrl = "https://dronemeetup.icfoss.org/app_data";
-    //added by athii----end
     
     private void setupModel() {
         tagEdits = TagEdit.buildTagEdits();
@@ -172,54 +166,6 @@ public class TagSwipeActivity extends ActionBarActivity {
         mViewPager.setCurrentItem(idx);
     }
 
-    //push xml data to server ----edited by athii--start
-    public void pushXmlToServer(OSMElement element , String OSMUsername){
-        try {
-            editedXml = OSMXmlWriter.elementToString(element,OSMUsername , APP_NAME + " " + appVersion);
-            Log.i("edited xml is: ",editedXml);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        JSONObject requestObj = new JSONObject();
-        try
-        {
-            String key="jasnaaslam222";
-            MessageDigest m=MessageDigest.getInstance("MD5");
-            m.update(key.getBytes(),0,key.length());
-            String auth_hash = new BigInteger(1,m.digest()).toString(16);
-
-            requestObj.put("xmlfile", editedXml);
-            requestObj.put("auth_hash", auth_hash);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, postUrl, requestObj,
-                new Response.Listener<JSONObject>()
-                {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        // display response
-                        Toast.makeText(TagSwipeActivity.this, response.toString(), Toast.LENGTH_LONG).show();
-                        Log.d("Response", response.toString());
-                    }
-                },
-                new Response.ErrorListener()
-                {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("Volley", error.toString());
-                    }
-                }
-
-        );
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonRequest);
-    }
-//added by athii----end
     /**
      * Only call if you have more than one missing tag.
      *

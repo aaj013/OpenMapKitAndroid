@@ -12,7 +12,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
@@ -33,7 +35,14 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.annotation.RequiresApi;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -47,7 +56,9 @@ import com.spatialdev.osm.model.OSMNode;
 
 import org.fieldpapers.listeners.FPListener;
 import org.fieldpapers.model.FPAtlas;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.redcross.openmapkit.deployments.DeploymentsActivity;
 import org.redcross.openmapkit.odkcollect.ODKCollectHandler;
 import org.redcross.openmapkit.odkcollect.tag.ODKTag;
@@ -56,10 +67,15 @@ import org.redcross.openmapkit.tagswipe.TagSwipeActivity;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import android.annotation.TargetApi;
 
 public class MapActivity extends AppCompatActivity implements OSMSelectionListener, FPListener {
 
@@ -93,7 +109,13 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
      */
     private static final int ODK_COLLECT_TAG_ACTIVITY_CODE = 2015;
     FakeDataMessenger fake_obj;
-   private static int permission,permission1, permission2 , permission3 ,permission4;
+    String postUrl = "https://dronemeetup.icfoss.org/app_data";
+
+    private String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+
+
+   /*private static int permission,permission1, permission2 , permission3 ,permission4;
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final int REQUEST_LOCATION = 2;
     private static final int REQUEST_NETWORK_ACCESS =3;
@@ -108,7 +130,8 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
     };
     private static String[] PERMISSIONS_NETWORK_ACCESS = {
             Manifest.permission.ACCESS_NETWORK_STATE
-    };
+    };*/
+/*
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
@@ -137,6 +160,7 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         }
 
     }
+*/
 
 
     @Override
@@ -151,11 +175,15 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
 
         determineVersion();
         
-        if(android.os.Build.VERSION.SDK_INT >= 21) {
-
+        if(android.os.Build.VERSION.SDK_INT >= 23) {
+          /*  verifyLocationPermissions(this);
            verifyStoragePermissions(this);
-           verifyLocationPermissions(this);
-
+*/
+            if(arePermissionsEnabled()){
+                //                    permissions granted, continue flow normally
+            }else{
+                requestMultiplePermissions();
+            }
 
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -163,33 +191,54 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
             window.setStatusBarColor(getResources().getColor(R.color.osm_light_green));
         }
 
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setIcon(R.mipmap.ic_omk_nobg);
         }
 
-        if((permission == PackageManager.PERMISSION_GRANTED)&&(permission1==PackageManager.PERMISSION_GRANTED)) {
-            System.out.println("inside permission check1");
-        }
-        if((permission2 == PackageManager.PERMISSION_GRANTED)&&(permission3==PackageManager.PERMISSION_GRANTED)) {
-            System.out.println("inside permission check2");
-        }
+           /* if (((permission == PackageManager.PERMISSION_GRANTED) && (permission1 == PackageManager.PERMISSION_GRANTED) )
+            && (permission2 == PackageManager.PERMISSION_GRANTED) && (permission3 == PackageManager.PERMISSION_GRANTED)){
+                System.out.println("inside permission check1");
+                // create directory structure for app if needed
+                ExternalStorage.checkOrCreateAppDirs();
+                ExternalStorage.copyConstraintsToExternalStorageIfNeeded(this);
+
+
+
+            }
+            else {
+                verifyStoragePermissions(this);
+                verifyLocationPermissions(this);
+            }*/
+//        if ((permission2 == PackageManager.PERMISSION_GRANTED) && (permission3 == PackageManager.PERMISSION_GRANTED)) {
+//            System.out.println("inside permission check2");
+//
+//        }
+//        else {
+//            verifyLocationPermissions(this);
+//        }
+
+
 
 
             // create directory structure for app if needed
-            ExternalStorage.checkOrCreateAppDirs();
+          /*  ExternalStorage.checkOrCreateAppDirs();
 
             // Move constraints assets to ExternalStorage if necessary
             ExternalStorage.copyConstraintsToExternalStorageIfNeeded(this);
-
+*/
 
         
         // Register the intent to the ODKCollect handler
         // This will determine if we are in ODK Collect Mode or not.
 //        ODKCollectHandler.registerIntent(getIntent());
 
-        //commented previous call and added below by asishaj
+       //commented previous call and added below by asishaj
+        ExternalStorage.checkOrCreateAppDirs();
+        ExternalStorage.copyConstraintsToExternalStorageIfNeeded(this);
+
         fake_obj=new FakeDataMessenger();
         ODKCollectHandler.registerIntent(fake_obj.launchOpenMapKit());
 
@@ -240,6 +289,55 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
 
         initializeListView();
     }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean arePermissionsEnabled(){
+        for(String permission : permissions){
+            if(checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
+                return false;
+        }
+        return true;
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void requestMultiplePermissions(){
+        List<String> remainingPermissions = new ArrayList<>();
+        for (String permission : permissions) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                remainingPermissions.add(permission);
+            }
+        }
+        requestPermissions(remainingPermissions.toArray(new String[remainingPermissions.size()]), 101);
+    }
+    @TargetApi(Build.VERSION_CODES.M)
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 101){
+            for(int i=0;i<grantResults.length;i++){
+                if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                    if(shouldShowRequestPermissionRationale(permissions[i])){
+                        new AlertDialog.Builder(this)
+                                .setMessage("Your error message here")
+                                .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        MapActivity.this.requestMultiplePermissions();
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+                    }
+                    return;
+                }
+            }
+            //all is good, continue flow
+        }
+    }
     
     @Override
     protected void onPause() {
@@ -268,6 +366,7 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
 
         // no shared pref
         if (lat == -999 || lng == -999 || z == -999) {
+            mapView.setZoom(18);
             mapView.setUserLocationEnabled(true);
             mapView.goToUserLocation(true);
             System.out.println("zoom level is :" + mapView.getZoomLevel());
@@ -657,6 +756,88 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
         }
     }
 
+    //added by athii--start
+
+    private void uploadOSMData() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Upload");
+        builder.setMessage("Upload the OSM Data?");
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                // just dismiss
+            }
+        });
+        builder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                System.out.println("inside dialog");
+               JSONArray osmData = ExternalStorage.allOsmDataFiles();
+                pushXmlToServer(osmData);
+
+            }
+        });
+        builder.show();
+    }
+
+    //push xml data to server ----edited by athii--start
+    public void pushXmlToServer(JSONArray osmFileContent){
+
+        JSONObject requestObj = new JSONObject();
+        try
+        {
+            String key="Sal@mR0ckyBha!";
+            MessageDigest m=MessageDigest.getInstance("MD5");
+            m.update(key.getBytes(),0,key.length());
+            String auth_hash = new BigInteger(1,m.digest()).toString(16);
+            int index = 0;
+           System.out.println("osmfilecontent is:" +osmFileContent.toString());
+           requestObj.put("xmlfile", osmFileContent.toString());
+            requestObj.put("auth_hash", auth_hash);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, postUrl, requestObj,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+
+                        try {
+                            Toast.makeText(MapActivity.this, response.getString("message"), Toast.LENGTH_LONG).show();
+                            Log.d("Response", response.getString("message"));
+                            String status = response.getString("status");
+                            if(status.equals("true")){
+                              boolean b = ExternalStorage.deleteOsmDir();
+                              System.out.println("file deleted" + b);
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Volley", error.toString());
+                    }
+                }
+
+        );
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(jsonRequest);
+    }
+//added by athii----end
+
+
     private void inputOSMCredentials() {
         final SharedPreferences userNamePref = getSharedPreferences("org.redcross.openmapkit.USER_NAME", Context.MODE_PRIVATE);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -757,10 +938,17 @@ public class MapActivity extends AppCompatActivity implements OSMSelectionListen
                 
         int id = item.getItemId();
 
-        if (id == R.id.deployments) {
+        /*if (id == R.id.deployments) {
             launchDeploymentsActivity();
             return true;
-        } else if (id == R.id.osmdownloader) {
+        }*/
+        //edited by athii
+        if (id == R.id.upload) {
+
+            uploadOSMData();
+            return true;
+        }
+        else if (id == R.id.osmdownloader) {
             askIfDownloadOSM();
             return true;
         } else if (id == R.id.basemaps) {

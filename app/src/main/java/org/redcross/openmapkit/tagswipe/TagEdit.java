@@ -37,6 +37,9 @@ public class TagEdit{
     private static LinkedHashMap<String, TagEdit> tagEditHash;
     private static LinkedHashMap<String, TagEdit> tagEditHiddenHash;
     private static List<TagEdit> tagEdits;
+
+
+
     private static OSMElement osmElement;
     private static TagSwipeActivity tagSwipeActivity;
     
@@ -109,7 +112,11 @@ public class TagEdit{
         
         return tagEdits;
     }
-
+    //added by athii--start
+    public static OSMElement getOsmElement() {
+        return osmElement;
+    }
+    //added by athii--end
     private static String tagValueOrDefaultValue(Map<String,String> tags, String tagKey) {
         String tagVal = tags.get(tagKey);
         if (tagVal == null) {
@@ -160,9 +167,9 @@ public class TagEdit{
             tagSwipeActivity.notifyMissingTags(missingTags);
             return false;
         } else {
-            tagSwipeActivity.pushXmlToServer(osmElement , osmUserName);
+           //tagSwipeActivity.pushXmlToServer(osmElement , osmUserName);
 
-          // ODKCollectHandler.saveXmlInODKCollect(osmElement, osmUserName);
+          ODKCollectHandler.saveXmlInODKCollect(osmElement, osmUserName);
             return true;
         }
     }

@@ -10,6 +10,8 @@
     <string name="action_info">Info</string>
     <string name="osmChooserDialogTitle">Choose OSM XML Files</string>
     <string name="osmAppPath">openmapkit/osm</string>
+    <!-- added by athi-->
+    <string name="osmUpload">Upload</string>
 
     <!-- mbtiles menu -->
     <string name="action_deployments">Deployments</string>

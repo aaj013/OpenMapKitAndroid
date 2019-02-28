@@ -79,7 +79,8 @@ public class Basemap {
 
         //add mbtiles names from external storage
         File[] mbtiles = ExternalStorage.fetchMBTilesFiles();
-        if (mbtiles.length > 0) {
+
+        if (mbtiles.length > 0  ) {
             for (File file : mbtiles) {
                 String filePath = file.getAbsolutePath();
                 basemaps.add(filePath);

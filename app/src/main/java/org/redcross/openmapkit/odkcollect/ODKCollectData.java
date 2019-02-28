@@ -32,11 +32,13 @@ public class ODKCollectData {
     private String formId;
     private String formFileName;
     private String instanceId;
-    private String instanceDir;
+    private String instanceDir = ExternalStorage.getOsmDataDir();
     private String previousOSMEditFileName;
     private LinkedHashMap<String, ODKTag> requiredTags;
     private List<File> editedOSM = new ArrayList<>();
-    
+
+
+
     private String editedXml;
     private String checksum;
     private String appVersion;
@@ -191,5 +193,6 @@ public class ODKCollectData {
         }
         return false;
     }
-    
+
+
 }

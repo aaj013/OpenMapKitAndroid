@@ -7,9 +7,13 @@
           android:icon="@drawable/ic_cog"
           app:showAsAction="always">
         <menu>
+            <!--edited by athii -->
+           <!--<item
+               android:id="@+id/deployments"
+               android:title="@string/action_deployments" /> -->
             <item
-                android:id="@+id/deployments"
-                android:title="@string/action_deployments" />
+                android:id="@+id/upload"
+                android:title="@string/osmUpload" />
             <item
                 android:id="@+id/basemaps"
                 android:title="@string/action_basemaps" />
